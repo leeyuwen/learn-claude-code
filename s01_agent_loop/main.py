@@ -54,6 +54,7 @@ MODEL = os.environ["MODEL_ID"]
 SYSTEM = f"You are a coding agent at {os.getcwd()}. Use bash to solve tasks. Act, don't explain."
 
 # ── Tool definition: just bash ────────────────────────────
+# LLM通过description去判断是否用这个TOOLS，name是这个工具名字，input_schema是输入的参数（必须保留，即使不需要输入参数，"properties": {}  # 保持属性为空即可）
 TOOLS = [{
     "name": "bash",
     "description": "Run a shell command.",
@@ -71,6 +72,11 @@ def run_bash(command: str) -> str:
     if any(d in command for d in dangerous):
         return "Error: Dangerous command blocked"
     try:
+        """
+        必须通过 subprocess 创建一个子进程（Subprocess），把命令交给系统的 Shell（比如 Bash 或 PowerShell）去跑，然后再把结果抓取回来。
+        shell=True：告诉系统“启动一个终端 Shell 来解析并运行这条命令” 
+        capture_output=True：最重要的参数。 意思是“把命令产生的所有屏幕输出默默拦截并捕获下来”
+        """
         r = subprocess.run(command, shell=True, cwd=os.getcwd(),
                            capture_output=True, text=True, timeout=120)
         out = (r.stdout + r.stderr).strip()
@@ -87,7 +93,7 @@ def agent_loop(messages: list):
         response = client.messages.create(
             model=MODEL, system=SYSTEM, messages=messages,
             tools=TOOLS, max_tokens=8000,
-        )
+        )   #SYSTEM 是背景，比如你作为开发人员或测试人员
 
         # Append assistant turn
         messages.append({"role": "assistant", "content": response.content})
@@ -121,7 +127,7 @@ if __name__ == "__main__":
     history = []
     while True:
         try:
-            query = input("\033[36ms01 >> \033[0m")
+            query = input("\033[36ms01 >> \033[0m")            #\033[36m：用来告诉终端将接下来的文本颜色切换为青蓝色 (Cyan)。\033[0m：用来重置颜色，防止用户之后输入的文本也变成青蓝色。
         except (EOFError, KeyboardInterrupt):
             break
         if query.strip().lower() in ("q", "exit", ""):
