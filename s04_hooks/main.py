@@ -228,6 +228,9 @@ register_hook("PreToolUse", log_hook)
 register_hook("PostToolUse", large_output_hook)
 register_hook("Stop", summary_hook)
 
+"""
+这部分就类似于Django的中间件，通过事前、事中、事后去实现你需要的小函数，当你需要了就在上面这段注册一个小函数丢进去，不需要再改动agent loop里面的代码了
+"""
 
 # ═══════════════════════════════════════════════════════════
 #  agent_loop — same structure as s03, but no hard-coded check

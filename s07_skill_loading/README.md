@@ -131,6 +131,8 @@ python s07_skill_loading/code.py
 
 观察重点：Agent 是否直接从 SYSTEM 里的目录知道有哪些技能？需要完整规范时是否出现 `[HOOK] load_skill`？加载后回答是否使用了对应 skill 的说明？
 
+**学习笔记**：1、 `manifest = d / "SKILL.md"`这里d是路径对象通过 “/”可以和字符串连接，如果d是字符串则不行
+
 ---
 
 ## 接下来
